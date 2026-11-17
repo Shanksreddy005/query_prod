@@ -9,7 +9,7 @@ Hosted on **Cloudflare Pages** (this repository) with the two oversized DuckDB-W
 | Application | QueryMind |
 | Release version | v1.0 (R2 WASM remediation) |
 | Source repository | https://github.com/Shanksreddy005/query_main |
-| Source commit | `c5253a7028e97a21e1ea565b1c2d282ead5f2801` — "Serve DuckDB-WASM binaries from first-party R2 (Cloudflare Pages 25 MiB limit)" |
+| Source commit | `fc65e4b6ff9edec941130a32c45451afc0864871` — head of "Serve DuckDB-WASM binaries from first-party R2 (Cloudflare Pages 25 MiB limit)" + domain correction; build artifacts are byte-identical to those generated at `c5253a7028e97a21e1ea565b1c2d282ead5f2801` (documentation-only commits after the build) |
 | Build date | 2026-11-17 |
 | Build command | `npm ci && npx tsc --noEmit && npm test && npm run build` |
 | Test status at build time | 301 tests / 83 suites / 301 pass / 0 fail |
@@ -29,7 +29,7 @@ These two files are **not in this repository**. Upload sources (verify SHA-256 a
 
 - **Content-Type:** `application/wasm`
 - **Cache-Control:** `public, max-age=31536000, immutable`
-- **CORS:** `GET` from `https://querymind.ai`, `https://www.querymind.ai` and the Cloudflare Pages origins; no credentials
+- **CORS:** `GET` from `https://querymind.in`, `https://www.querymind.in` and the Cloudflare Pages origin (placeholder `https://<pages-project>.pages.dev` — replace with the actual URL once known); no credentials
 - Bucket otherwise private (public access only via the custom domain, static objects only)
 
 ## File inventory (SHA-256) — Cloudflare Pages (this repository, 8 files)
