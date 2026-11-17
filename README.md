@@ -50,6 +50,7 @@ Notes: no rewrite rules needed (single page, no client-side routing); Cloudflare
 
 ## Maintenance rules
 
+- `.gitattributes` in this repository is configuration only (it disables end-of-line conversion so clones match the deployed artifacts byte-for-byte); it is not a deployed asset.
 - Never edit the generated JS/CSS or rename files — every artifact is content-addressed and verified by checksum above.
 - To update: build from a verified commit in `query_main`, replace all files here atomically, update the inventory table and commit SHA, then deploy.
 - This repository must never contain source code, tests, `node_modules`, `.env` files, keys or logs.
