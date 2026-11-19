@@ -1,20 +1,24 @@
 # QueryMind — Production Deployment
 
-Deployed production build of **QueryMind v1.1** — browser-native natural-language analytics (BYOK, zero backend).
+Production build of **QueryMind v1.2** — browser-native natural-language analytics (BYOK, zero backend).
+
+This HEAD (`v1.2`) is a **release candidate that has not been pushed or deployed**. Cloudflare Pages deploys from the pushed branch, so the live site still serves whatever the last pushed commit contained; nothing here should be read as evidence about `https://querymind.in` until a push and a live verification pass have happened.
 
 Hosted on **Cloudflare Pages** (this repository) with the two oversized DuckDB-WASM binaries served from **Cloudflare R2** (`querymind-static` bucket, custom domain `assets.querymind.in`).
 
 | Field | Value |
 |---|---|
 | Application | QueryMind |
-| Release version | v1.1 (production quality remediation) |
+| Release version | v1.2 (executive-summary ranked-metric fix) |
 | Source repository | https://github.com/Shanksreddy005/query_main |
-| Source commit | `0e3b33ffd94069a7b93a4d89130d22fc2d0027e0` — head of "Ignore the wrangler local emulation cache directory"; the shipped code fix is `56c5ac897894c866762907c0d4de1bf4784a20a1` and the two commits after it are documentation-only. Artifacts were regenerated from a clean working tree at this commit and matched byte-for-byte. |
-| Build date | 2026-11-18 |
+| Source commit | `b474d69de01d3bee0df48a7a9fb169469c169869` — head of "Derive the ranked metric in the executive summary from the executed query", on top of `56c5ac8` (SVG export + keyless demo fixes), `238a392` and `0e3b33f` (documentation and repository hygiene). Artifacts were regenerated from a clean clone of this commit and matched byte-for-byte against the working-tree build. |
+| Build date | 2026-11-19 |
 | Build command | `npm ci && npx tsc --noEmit && npm test && npm run build` |
-| Test status at build time | 330 tests / 86 suites / 330 pass / 0 fail |
+| Test status at build time | 349 tests / 91 suites / 349 pass / 0 fail |
 
-> **Not byte-identical to the previous release (`e1d4c59`).** Two files changed: `index.html` (asset references) and the main JS bundle (standalone SVG chart export, the ranking-direction validation fix, three added keyless demo blueprints and corrected keyless copy). `assets/index-aKeiN4x3.js` was removed by rotation. CSS, worker scripts, fonts, images and both `.wasm` binaries are byte-identical to the previously verified release, so no R2 re-upload is required.
+> **The version label identifies this deployment, not a built-in marker.** The application ships no in-app version string (`package.json` stays at `0.0.0` by design), so the only authoritative identity of what is deployed is the source commit and the artifact hashes below.
+
+> **Not byte-identical to the previous release (`b1a31ab`).** Two files change: `index.html` (asset reference) and the main JS bundle (the ranked measure is now read from the executed query instead of inferred, so a profit-ranked result is no longer narrated as a sales ranking). `assets/index-BWBgMqJ9.js` is removed by this rotation. CSS, worker scripts, fonts, images and both `.wasm` binaries are byte-identical to the previously verified release, so no R2 re-upload is required.
 
 ## Why two hosts
 
@@ -36,8 +40,8 @@ These two files are **not in this repository**. Upload sources (verify SHA-256 a
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `aff3b3a5ceb83951501dafec5e9df746158b5268f6dbd69a2fd0512fa5142945` |
-| `assets/index-BWBgMqJ9.js` | `7eb989b5d82933dd5b60c147df80ca2c6280b25e10836a64206387e074ed20d3` |
+| `index.html` | `e4570160d63375c40750477b91e9d06c2c1e902c5024e1eb9afed0c081c5cf3c` |
+| `assets/index-BrYHrD16.js` | `c18f9d601530bc8317c612818b0f4e406919b5af5a2c23984b19bb3d77dabc74` |
 | `assets/index-B5urW9Yt.css` | `0578ef8eb7d42c66df4c20e7139d108060ae648a43ca9328a6f5e25ccf28db6f` |
 | `assets/aistudio/image_ff69bad7.png` | `ff69bad7d2d91321292459a2b54392093e123d0575276a5ee8d7f69bc0cac6dc` |
 | `duckdb/duckdb-browser-eh.worker.js` | `fa889e6068c40426dea67c08cf16ce0cad7404eae94f6a2522adcabb5898eb93` |
@@ -67,6 +71,17 @@ These two files are **not in this repository**. Upload sources (verify SHA-256 a
 5. Open the Telemetry Auditor — request bodies contain schema metadata only, never dataset rows or results.
 6. Click "Download Chart as SVG" on a suggested chart and open the saved file: it must be the chart (880×520, labelled), not a toolbar glyph, and must render standalone without the site's stylesheet.
 7. With **no** API key configured, run all five E-Commerce demo questions: each must answer locally with a checks-passed badge instead of asking for a key.
+8. Ask a profit-ranked question on the E-Commerce dataset (for example "Top products by total profit") and read the executive summary: the metric it names must be the one the result was ordered on — "ranked by total profit" beside profit figures, never "ranked by total sales". This is the v1.2 fix and it has only been verified against the summary engine in tests so far, so the live pass is what closes it.
+
+## Build provenance
+
+The artifacts above were produced from a clean clone of the source commit, not from a developer working tree:
+
+1. `git clone` of `query_main`, checked out detached at `b474d69de01d3bee0df48a7a9fb169469c169869`, working tree clean.
+2. `npm ci` → `npx tsc --noEmit` (clean) → `npm test` (349 tests / 91 suites / 0 fail) → `npm run build`.
+3. Every file in the clone's `dist/` hashed with SHA-256 and compared to the working-tree build: all 10 files byte-identical.
+4. The eight Pages files listed above then copied from the clean clone into this repository, and each re-hashed in place — every value above is the hash of the file actually committed here. The two `.wasm` binaries in the same `dist/` re-hashed to the R2 values above, which is what makes "no R2 re-upload" a measured statement rather than an assumption.
+5. Files not copied: `dist/duckdb/duckdb-eh.wasm` and `dist/duckdb/duckdb-mvp.wasm` (35,913,747 and 41,325,187 bytes — both above the Cloudflare Pages per-file limit, both served from R2).
 
 ## Maintenance rules
 
