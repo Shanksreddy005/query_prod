@@ -2,7 +2,7 @@
 
 Production build of **QueryMind v1.2** — browser-native natural-language analytics (BYOK, zero backend) — together with the public site now served at the domain root: landing page, privacy policy and contact page.
 
-**Release status: prepared and locally committed — not pushed, not deployed.** The live site currently serves `4e9ffc9` (built from source `2cc8305`): on 2026-11-25 the origin's `index.html`, JS bundle and stylesheet were fetched and are byte-identical to this repository's copies at that commit, so that is what the edge is serving — but the post-deployment checklist below was not re-run against it. This working tree carries the next release candidate, built from source `2b3f4fb`; it becomes live only after an authorized push of this repository, which is also what triggers Cloudflare Pages.
+**Release status: prepared and locally committed — not pushed, not deployed.** The live site currently serves `aa0a7e6` (built from source `2b3f4fb`), deployed and verified on 2026-11-25: live HTML, JS and CSS hashes matched the approved build, all public routes rendered, robots/sitemap served their real files, and the workspace smoke tests (curated keyless queries, chart, SVG/CSV export, CSV upload, `/app` noindex) passed. This working tree carries the next release candidate, built from source `8d06139`; it becomes live only after an authorized push of this repository, which is also what triggers Cloudflare Pages.
 
 Hosted on **Cloudflare Pages** (this repository) with the two oversized DuckDB-WASM binaries served from **Cloudflare R2** (`querymind-static` bucket, custom domain `assets.querymind.in`).
 
@@ -11,16 +11,16 @@ Hosted on **Cloudflare Pages** (this repository) with the two oversized DuckDB-W
 | Application | QueryMind |
 | Release version | v1.2 + public site (landing, privacy, contact) |
 | Source repository | https://github.com/Shanksreddy005/query_main |
-| Source commit | `2b3f4fb45bf320f6a6128ec3cd44d59a3906e6c6` — "Add public landing, privacy and contact pages at the site root", on top of `2cc8305` (the source of the deployed release), `a49532a` and `31bf2cc` (v1.2 verification records), and the previously deployed `b474d69`. Artifacts were built from the committed tree of this commit; every file hash below is taken from that build. |
+| Source commit | `8d061397918896a997d91133343a788609cbcc29` — "Replace the public theme cycle with light and dark buttons", on top of `2b3f4fb` (the source of the deployed release), `2cc8305`, `a49532a` and `31bf2cc` (v1.2 verification records), and the previously deployed `b474d69`. Artifacts were built from the committed tree of this commit; every file hash below is taken from that build. |
 | Build date | 2026-11-25 |
 | Build command | `npm ci && npx tsc --noEmit && npm test && npm run build` |
 | Test status at build time | 467 tests / 118 suites / 467 pass / 0 fail |
 | Deployment status | **Prepared and locally committed — not pushed, not deployed** |
-| Currently deployed release | `4e9ffc9` (source `2cc8305`); edge bytes confirmed 2026-11-25, checklist not re-run |
+| Currently deployed release | `aa0a7e6` (source `2b3f4fb`), deployed and verified 2026-11-25 |
 
 > **The version label identifies a release, not a built-in marker.** The application ships no in-app version string (`package.json` stays at `0.0.0` by design), so the only authoritative identity of what is deployed is the source commit and the artifact hashes below.
 
-> **Not byte-identical to the deployed release (`4e9ffc9`, source `2cc8305`).** Five Pages files change: `index.html` (document title, description, `robots`, Open Graph and Twitter metadata; new asset references), the main JS bundle (the public site at `/`, `/privacy` and `/contact`, with the workspace moved to `/app`), the stylesheet that the new pages depend on, and two new files at the repository root — `robots.txt` and `sitemap.xml`. `assets/index-DKse2nZt.js` and `assets/index-CFGGKU9c.css` are removed by this rotation. Worker scripts, fonts, the PNG and both `.wasm` binaries are byte-identical to the deployed release, so no R2 re-upload is required. Until this deployment, `/robots.txt` and `/sitemap.xml` were answered by the Cloudflare Pages SPA fallback with the HTML document; after it those paths serve the real files. The route switch also means `/` no longer opens the workspace — that now lives at `/app`, which `robots.txt` excludes from indexing.
+> **Not byte-identical to the deployed release (`aa0a7e6`, source `2b3f4fb`).** Two Pages files change: `index.html` (new asset reference — same metadata) and the main JS bundle, which now renders the public header's theme control as two explicit buttons (sun = light, moon = dark) instead of the three-state system/light/dark cycle; the system state and its monitor icon are gone from the public site. The stylesheet, `robots.txt`, `sitemap.xml`, worker scripts, fonts, the PNG and both `.wasm` binaries are byte-identical to the deployed release, so no R2 re-upload is required. `assets/index-DAlCOhl1.js` is removed by this rotation.
 
 ## Why two hosts
 
@@ -42,8 +42,8 @@ These two files are **not in this repository**. Upload sources (verify SHA-256 a
 
 | File | SHA-256 |
 |---|---|
-| `index.html` | `7fc1c2508d001be1b1c1e4c35e27b464454bba89c3b4ec1150a0ef345814579a` |
-| `assets/index-DAlCOhl1.js` | `0e181f9ec0acf88b7f774d201c37ec3f5f399723a78c49614803e66d3ebe2dfb` |
+| `index.html` | `0387fdf539ae3abfe2d7e56f1ac445da64f88013c2868554083be0f116276aca` |
+| `assets/index-Ci7VMYy9.js` | `afa5ce30bc34520b79d265dcf913a76ee1e1eee4b13bbc62d7af610ecb9f0597` |
 | `assets/index-BoCwoH1v.css` | `ed26d8c6c2ca757cd38fa6446867e7a6c87781c6ff3e3abd3c2a8c4d35a705df` |
 | `robots.txt` | `1d3b2168d85434b1abff9032935358b47c6664a7a2c13d84bb0860a6ce9b9b75` |
 | `sitemap.xml` | `c5ab36bad48e5b5f6933ccb3b20713fc58b7395cd5bb646ba7edeae88d69a046` |
@@ -53,7 +53,7 @@ These two files are **not in this repository**. Upload sources (verify SHA-256 a
 | `fonts/inter-latin-variable.woff2` | `3100e775e8616cd2611beecfa23a4263d7037586789b43f035236a2e6fbd4c62` |
 | `fonts/jetbrains-mono-latin-variable.woff2` | `83c005d49d8a6a50474c73a5a36ac0468076e9c4a29da7bdb14995d80560a5be` |
 
-The first five rows are this release's rotations and additions; the last five are byte-identical to the deployed release and were left untouched.
+The first two rows are this release's rotations; the remaining eight are byte-identical to the deployed release and were left untouched.
 
 ## File inventory — Cloudflare R2 (`querymind-static`, 2 objects, unchanged)
 
@@ -70,7 +70,7 @@ The first five rows are this release's rotations and additions; the last five ar
 
 ## Post-deployment verification
 
-Each item below is the standing instruction for a release. The recorded results are the 2026-11-19 pass on `7dcdb25` (source `b474d69`); they are kept as historical evidence and **do not verify** either the currently deployed `4e9ffc9` or the locally committed candidate built from `2b3f4fb`. Every item must be re-run after an authorized push and deployment, and the new results recorded then.
+Each item below is the standing instruction for a release. The recorded results are the 2026-11-19 pass on `7dcdb25` (source `b474d69`), except item 9, which records the 2026-11-25 pass on the currently deployed `aa0a7e6` (source `2b3f4fb`). They are kept as evidence and **do not verify** the locally committed candidate built from `8d06139`. Every item must be re-run after an authorized push and deployment, and the new results recorded then.
 
 1. Open the deployed URL — no console errors from the application's own code; the resources the application requests are first-party only: this Pages origin, `assets.querymind.in` (the WASM fetch), and one provider endpoint when a query runs.
    **Result: pass for the application's own requests, with the analytics state left open.** In the cache-bypassing cold loads the page frame requested only the Pages origin for HTML, JS, CSS and both fonts (plus one same-origin `blob:` entry), the served document was byte-identical to `index.html` in this repository, and the live DOM held exactly one script element: the app bundle. No Cloudflare dashboard was opened, so nothing here is a claim about a setting. **What is not clean:** an earlier capture of the same pass showed the edge injecting its own analytics script — a `static.cloudflareinsights.com` script element, a defined `window.__cfBeacon`, and a same-origin `POST /cdn-cgi/rum` from the page — and the pre-release audit had recorded the same chain. That injection is a hosting behaviour, not repository content: none of those identifiers appears in any file of this repository or of the source repository, nor in the shipped bundle text. Because a beacon was seen during the pass and the dashboard was never inspected, the finding stays open; the disablement and re-measurement steps are in `docs/verification/production-quality-remediation-report.md` in the source repository. Separately, a `window.RumSDK` global (with an `ArmsRum` key) was present in the automated browser's page context even in loads where no third-party script was fetched, and could not be attributed to QueryMind: no markup, no bundle string and no request accompanied it. On the console side: zero errors and zero warnings across the cold load and the verified-sample runs; the missing-key guard on an unsupported free-text question with no key writes one expected `console.error` line per rejection (two were logged for two such questions), which is correct refusal behaviour and not a failed query. Cloudflare also answers with `Nel` / `Report-To` headers (`success_fraction: 0.0`), so a browser may report failed connections on this host to Cloudflare; and `http://` answers `301` to `https://`, with no `Strict-Transport-Security`, Content-Security-Policy or `Permissions-Policy` on the measured responses.
@@ -88,18 +88,19 @@ Each item below is the standing instruction for a release. The recorded results 
    **Result: pass.** All five chips answered locally with checks-passed labels and no key prompt; `localStorage` held no key at any point.
 8. Ask a profit-ranked question on the E-Commerce dataset (for example "Top products by total profit") and read the executive summary: the metric it names must be the one the result was ordered on — "ranked by total profit" beside profit figures, never "ranked by total sales". This is the v1.2 fix and it has only been verified against the summary engine in tests so far, so the live pass is what closes it.
    **Result: pass, and one wording correction.** The live check was run with the curated question "What are the top 5 most profitable products in Technology?" (`ORDER BY total_profit DESC`), which narrated "5 orders were ranked by total profit. UltraBook Pro 15 leads with $880…"; the string "ranked by total sales" appeared nowhere, including after a full reload with a cold engine. The quantity-ranked and per-group cases named their own measures too ("ranked by total units sold"). Note that the example question in this item, "Top products by total profit", is **not** one of the curated set: with no key it is correctly refused by the contract guard rather than answered locally, so use one of the five chips (or configure a key) when repeating this check.
-9. **New for this release — public site and route split.** Load `/`, `/privacy` and `/contact`: each must render its own page (title and description change per route after mount), `/privacy` and `/contact` must show `shanksreddy005@gmail.com` as a working `mailto:` link, and `/app` must still open the workspace. Fetch `/robots.txt` and `/sitemap.xml`: they must return the files listed above as `text/plain` and `application/xml` (not the SPA fallback HTML), the sitemap must list exactly `/`, `/privacy` and `/contact`, and `robots.txt` must disallow `/app`. Then run one verified sample query from `/app` to confirm the workspace still loads DuckDB-WASM from R2 after the move. **Result: not yet measured — this checklist applies to the candidate after it is deployed.**
+9. **Public site and route split.** Load `/`, `/privacy` and `/contact`: each must render its own page (title and description change per route after mount), `/privacy` and `/contact` must show `shanksreddy005@gmail.com` as a working `mailto:` link, and `/app` must still open the workspace. Fetch `/robots.txt` and `/sitemap.xml`: they must return the files listed above as `text/plain` and `application/xml` (not the SPA fallback HTML), the sitemap must list exactly `/`, `/privacy` and `/contact`, and `robots.txt` must disallow `/app`. Then run one verified sample query from `/app` to confirm the workspace still loads DuckDB-WASM from R2 after the move. **Result: pass on `aa0a7e6` (2026-11-25).** Live hashes matched (`7fc1c250…`, `0e181f9e…`, `ed26d8c6…`); every route rendered its own page with correct titles; both public pages carried the monitored email as a `mailto:` link; the not-found route rendered its own page; `robots.txt` (270 B, `text/plain`) and `sitemap.xml` (482 B, `application/xml`) served the real files; `/app` set `meta[name=robots]` to `noindex,nofollow` at runtime; two curated keyless queries ran `In-Memory DuckDB` with integrity checks, the chart rendered, SVG and CSV downloads produced the expected files, and a dropped CSV was parsed. Querying an uploaded dataset without a key was correctly refused with the provider-key notice.
+   **For this release: not yet measured.** Re-check the two-button theme control after deployment — both buttons must toggle and persist, the sun must be active under a light preference, and no monitor icon may remain.
 
 ## Build provenance
 
 The artifacts above were produced from the committed source tree, not from uncommitted work:
 
-1. The release command ran in `query_main` checked out at `2b3f4fb45bf320f6a6128ec3cd44d59a3906e6c6` with `git status` empty and no `.env`. As an independent check, the same tree was copied to an isolated directory where `npm ci` was re-run from scratch (lockfile hash unchanged, `7ae1734fcbc8d3e79b5d2b91fe1896a3787b5d868e0f63365561dc77566179c0`); both builds emitted byte-identical files.
-2. `npm ci` → `npx tsc --noEmit` (clean) → `npm test` (467 tests / 118 suites / 0 fail) → `npm run build`.
+1. The release command ran in `query_main` checked out at `8d061397918896a997d91133343a788609cbcc29` with `git status` empty and no `.env`. The build was run twice and emitted byte-identical files (hashes below); `npm ci` had already been validated from scratch on this dependency set (`package-lock.json` unchanged, hash `7ae1734fcbc8d3e79b5d2b91fe1896a3787b5d868e0f63365561dc77566179c0`).
+2. `npx tsc --noEmit` (clean) → `npm test` (467 tests / 118 suites / 0 fail) → `npm run build`.
 3. Every file in `dist/` hashed with SHA-256. The build emitted exactly 12 files: the 10 Pages files above plus the two `.wasm` binaries. No source maps and no env files were emitted.
-4. Five Pages files were copied from that build into this repository — `index.html`, `assets/index-DAlCOhl1.js`, `assets/index-BoCwoH1v.css`, `robots.txt`, `sitemap.xml` — and each was re-hashed in place; every value above is the hash of the file actually committed here. The five unchanged Pages files (PNG, both workers, both fonts) were verified byte-identical to the deployed copies and left untouched.
+4. Two Pages files were copied from that build into this repository — `index.html` and `assets/index-Ci7VMYy9.js` — and each was re-hashed in place; every value above is the hash of the file actually committed here. The eight unchanged Pages files (stylesheet, `robots.txt`, `sitemap.xml`, PNG, both workers, both fonts) were verified byte-identical to the deployed copies and left untouched.
 5. Files not copied: `dist/duckdb/duckdb-eh.wasm` and `dist/duckdb/duckdb-mvp.wasm` (35,913,747 and 41,325,187 bytes — both above the Cloudflare Pages per-file limit, both served from R2, both unchanged: they hash to the R2 values above).
-6. The only other differences in this repository relative to the deployed release are the removal of the two superseded hashed assets and this README.
+6. The only other differences in this repository relative to the deployed release are the removal of the superseded `assets/index-DAlCOhl1.js` and this README.
 
 ## Maintenance rules
 
