@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+# The workspace runs entirely in the visitor's browser; its URL carries no dataset content.
+# It is excluded from indexing because it only becomes useful with local data and configuration.
+Disallow: /app
+
+Sitemap: https://querymind.in/sitemap.xml
