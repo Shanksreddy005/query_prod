@@ -70,7 +70,7 @@ environment and branch) was not independently inspected; see
    the checkout (only the placeholder `.env.example`).
 2. `npm ci` succeeded from the lockfile; `npx tsc --noEmit` was clean; `npm test` reported 481
    tests / 122 suites / 0 fail; `npm run build` succeeded and pre-rendered all five documents.
-3. The build emitted exactly 17 files: the 15 deployable files in the inventory below plus
+3. The build emitted exactly 17 files: the 15 deployable files of that release plus
    `duckdb/duckdb-eh.wasm` and `duckdb/duckdb-mvp.wasm`. No source maps and no environment files
    were emitted.
 4. All 15 deployable files were copied from that `dist/`; each was compared byte-for-byte with the
@@ -162,8 +162,62 @@ following was measured on the live origin:
   with HTTP 404 and `Cache-Control: no-store`.
 - No route fell back to the homepage: `/app` returned the 2,160-byte workspace document and the
   unknown path returned the 10,241-byte not-found document.
-- There is no `_redirects`, `_routes.json` or `_headers` file, and none should be added. A catch-all
-  rewrite to `index.html` would serve the landing document for `/privacy` and `/app`.
+- There is no `_redirects` or `_routes.json` file, and neither should be added. A catch-all rewrite
+  to `index.html` would serve the landing document for `/privacy` and `/app`. A top-level `_headers`
+  file (Phase 1, below) carries response headers only and does not participate in routing.
+
+## Phase 1 security headers (prepared 2026-11-26)
+
+`_headers` at the repository root adds five non-CSP response headers to every static asset response.
+The file is emitted from `query_main/public/_headers` by the production build and copied here
+byte-for-byte; Cloudflare Pages parses it at deploy time and never serves it as an asset.
+
+```text
+/*
+  Strict-Transport-Security: max-age=86400
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: accelerometer=(), camera=(), display-capture=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), publickey-credentials-get=(), usb=(), clipboard-write=(self)
+```
+
+- `Strict-Transport-Security: max-age=86400` — one day, deliberately short for the first release. No
+  `includeSubDomains` and no `preload`: `www.querymind.in` is unverified and HTTPS enforcement for
+  subdomains has not been decided. HSTS is sticky in clients, so the value is raised only after a
+  clean verification window.
+- `X-Content-Type-Options: nosniff` and `Referrer-Policy: strict-origin-when-cross-origin` match the
+  values Pages already returned on 2026-11-25; declaring them keeps the guarantee if platform
+  defaults change.
+- `X-Frame-Options: DENY` — neither the public pages nor the workspace are designed for embedding.
+- `Permissions-Policy` disables sensor, capture, geolocation and payment APIs the application never
+  uses. `clipboard-write=(self)` is kept because three copy controls call
+  `navigator.clipboard.writeText`.
+
+Deliberately excluded from this phase: `Content-Security-Policy` (enforcing or report-only), `COEP`,
+`CORP`, `Cache-Control` and `Access-Control-Allow-Origin`. CSP needs its own browser-verified pass
+because the DuckDB worker is created from a blob URL and inherits the document policy, including the
+Emscripten `eval` requirement; existing cache and CORS values are unchanged by this file.
+
+Preparation state on 2026-11-26: built from source `377e6cd` (481 tests, clean type check, and the
+fifteen existing artifacts reproduced byte-for-byte), not yet committed, pushed or deployed. The live
+responses therefore remain those measured on 2026-11-25 and carried none of these five headers.
+Record post-deployment values only after measuring them on the live origin.
+
+After deployment, verify with:
+
+```bash
+curl -sSI https://querymind.in/ | grep -iE 'strict-transport-security|x-content-type-options|x-frame-options|referrer-policy|permissions-policy'
+curl -sSI https://querymind.in/app | grep -iE 'strict-transport-security|x-content-type-options|x-frame-options|referrer-policy|permissions-policy'
+curl -sSI https://querymind.in/privacy | grep -iE 'strict-transport-security|x-frame-options|content-security-policy'
+curl -sSI https://querymind.in/assets/index-CHAEi_d6.js | grep -iE 'strict-transport-security|x-content-type-options'
+curl -sS -o /dev/null -w '%{http_code}\n' https://querymind.in/_headers
+curl -sS -o /dev/null -w '%{http_code}\n' https://querymind.in/definitely-not-a-route
+curl -sSI https://querymind.in/privacy.html
+```
+
+Expect five headers on 200 responses, `404` for `/_headers` itself and for unknown routes, and an
+unchanged `308` for the `.html` form. Pages does not document whether `_headers` applies to 404 or
+redirect responses, so record the measured behaviour rather than assuming it.
 
 ## Live SEO verification
 
@@ -226,8 +280,10 @@ R2 requirements remain as configured: `Content-Type: application/wasm`, immutabl
 
 ## Production artifact inventory
 
-Fifteen deployable Pages files. Sizes and SHA-256 are of the committed artifacts; each was compared
-byte-for-byte with the verified `dist/` output and re-checked against the live origin. Status is
+Sixteen deployable Pages files: the fifteen artifacts of the 2026-11-25 release, unchanged, plus
+`_headers`, added by the Phase 1 preparation on 2026-11-26. The fifteen release artifacts were
+compared byte-for-byte with the verified `dist/` output and re-checked against the live origin;
+`_headers` is verified against the build output and has no live origin measurement yet. Status is
 relative to the previous live baseline `aa0a7e6`.
 
 | Path | Bytes | SHA-256 | Status |
@@ -247,6 +303,7 @@ relative to the previous live baseline `aa0a7e6`.
 | `duckdb/duckdb-browser-mvp.worker.js` | 839,642 | `964f678d3bfa5a23deb154e0a7950634a4d1415e571040ab2d47815dc3f13582` | unchanged |
 | `fonts/inter-latin-variable.woff2` | 48,256 | `3100e775e8616cd2611beecfa23a4263d7037586789b43f035236a2e6fbd4c62` | unchanged |
 | `fonts/jetbrains-mono-latin-variable.woff2` | 31,432 | `83c005d49d8a6a50474c73a5a36ac0468076e9c4a29da7bdb14995d80560a5be` | unchanged |
+| `_headers` | 361 | `4d0c3210169d3e1d8c1b612e4aa581fe315f9ca79be68b7ab8a4e1e6bc7d3f1c` | new (Phase 1, not deployed) |
 
 Live requests for the JS, CSS, workers, fonts, image and social card returned HTTP 200 and matched
 these hashes and sizes. `index.html`, `app.html` and `404.html` were byte-identical on the
@@ -305,6 +362,10 @@ The following are not verified and must not be treated as completed:
 9. HSTS, CSP and Permissions-Policy were not observed in the inspected responses. This is a
    hosting observation, not proof of a broken release; no Cloudflare or security configuration was
    changed.
+10. The Phase 1 `_headers` file is prepared but not deployed, so its live effect is unmeasured:
+    whether Pages applies it to 404 responses, whether the 308 redirects carry the headers, and the
+    final header values on the origin all remain to be recorded. CSP is deliberately absent (Phase
+    2).
 
 Other hosting observations from the live responses: `x-content-type-options: nosniff`,
 `referrer-policy: strict-origin-when-cross-origin`, `Access-Control-Allow-Origin: *` on HTML,
