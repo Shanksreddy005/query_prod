@@ -198,10 +198,10 @@ Deliberately excluded from this phase: `Content-Security-Policy` (enforcing or r
 because the DuckDB worker is created from a blob URL and inherits the document policy, including the
 Emscripten `eval` requirement; existing cache and CORS values are unchanged by this file.
 
-Preparation state on 2026-11-26: built from source `377e6cd` (481 tests, clean type check, and the
-fifteen existing artifacts reproduced byte-for-byte), not yet committed, pushed or deployed. The live
-responses therefore remain those measured on 2026-11-25 and carried none of these five headers.
-Record post-deployment values only after measuring them on the live origin.
+Phase 1 security headers were prepared and locally committed on 2026-11-26. Production deployment
+and live response-header verification remain pending. The live responses therefore remain those
+measured on 2026-11-25 and carried none of these five headers. Record post-deployment values only
+after measuring them on the live origin.
 
 After deployment, verify with:
 
