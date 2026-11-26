@@ -4,33 +4,130 @@ Production build of **QueryMind v1.2** — browser-native natural-language analy
 backend) — with a pre-rendered document for every public route: landing page, privacy policy,
 contact page, analytics workspace and custom not-found page.
 
-**Release status: Prepared locally — not committed, not pushed, not deployed.**
+**Release status: Committed, pushed, automatically deployed to Cloudflare Pages, and live-verified
+on 2026-11-25.**
+
+The Cloudflare Pages integration check completed successfully, and the live documents were compared
+with the committed artifact hashes. The provider-side Cloudflare dashboard record (commit SHA field,
+environment and branch) was not independently inspected; see
+[Deployment identity](#deployment-identity-and-live-verification).
 
 | Field | Value |
 |---|---|
 | Application | QueryMind |
 | Release version | v1.2 + SEO route documents |
 | Source repository | https://github.com/Shanksreddy005/query_main |
-| Source commit | `377e6cd9c3b2386dcdf9a853c9b743256de7576f` — "Give every public route its own document and metadata", on top of `8d06139` (theme buttons), `2b3f4fb` (the source of the live release), `2cc8305`, `a49532a` and `31bf2cc` |
+| Source commit | `377e6cd9c3b2386dcdf9a853c9b743256de7576f` — "Give every public route its own document and metadata" |
+| Source branch / remote | `main`, `origin/main` at the same commit; clean working tree |
+| Production repository | https://github.com/Shanksreddy005/query_prod |
+| Production release commit | `550c43b7ad21779e7ed42c948b74f7db308284e9` — "Release QueryMind SEO-ready public pages" |
+| Production parent commit | `e393b7e43db6f39c0399cdf5fe943b94b04e42e9` — "Rotate production assets for the light/dark theme buttons" (retained in published history) |
+| Production branch / remote | `main`, `origin/main` at the same commit; clean after the release commit |
 | Build date | 2026-11-25 |
 | Build command | `npm ci && npx tsc --noEmit && npm test && npm run build` |
 | Type check | `npx tsc --noEmit` — clean |
 | Test status at build time | 481 tests / 122 suites / 481 pass / 0 fail |
-| Deployment status | **Prepared locally — not committed, not pushed, not deployed** |
-| Live baseline | `aa0a7e6` (built from source `2b3f4fb`), deployed and verified 2026-11-25 |
+| Deployment | Cloudflare Pages project `query-prod`, deployment `01f6fd35-62e5-4303-a349-309aa8abd0b8` |
+| Deployment check | `Cloudflare Pages` check run, completed successfully 2026-11-25T16:47:21Z |
+| Live verification | Read-only verification of `https://querymind.in`, 2026-11-25 |
+| Previous live baseline | `aa0a7e6` (built from source `2b3f4fb`), replaced by this release |
 
 > **The version label identifies a release, not a built-in marker.** The application ships no in-app
 > version string (`package.json` stays at `0.0.0` by design), so the only authoritative identity of
-> what is deployed is the source commit and the artifact hashes below.
+> what is deployed is the production commit and the artifact hashes below.
 
-> **Not byte-identical to the live baseline (`aa0a7e6`, source `2b3f4fb`).** Four documents are new
-> (`privacy.html`, `contact.html`, `app.html`, `404.html`) and `index.html`, the main JS bundle and
-> this README change. The live baseline contains only `index.html`, so `/privacy` and `/contact`
-> were answered by client-side routing over the landing document and `/app` and unknown paths by
-> the Cloudflare Pages SPA fallback. This release gives each route its own document, adds canonical
-> and social metadata, and turns the SPA fallback off with a top-level `404.html`. Stylesheet,
-> `robots.txt`, `sitemap.xml`, the PNG, worker scripts, fonts and both R2 `.wasm` objects are
-> unchanged. `assets/index-DAlCOhl1.js` is removed by this rotation.
+## Release identity and commit provenance
+
+### Source
+
+- Repository `query_main`, branch `main`, HEAD and `origin/main` at
+  `377e6cd9c3b2386dcdf9a853c9b743256de7576f`, working tree clean.
+- Commit message: "Give every public route its own document and metadata". The release sits on top
+  of `8d06139` (theme buttons), `2b3f4fb` (source of the previous live release), `2cc8305`,
+  `a49532a` and `31bf2cc`.
+- The build ran at that exact commit: 481 tests / 122 suites / 0 failures, clean TypeScript check
+  and a successful production build that pre-rendered all five documents.
+
+### Production
+
+- Repository `query_prod`, branch `main`, HEAD and `origin/main` at
+  `550c43b7ad21779e7ed42c948b74f7db308284e9`, working tree clean after the release commit.
+- Commit message: "Release QueryMind SEO-ready public pages". Its parent is
+  `e393b7e43db6f39c0399cdf5fe943b94b04e42e9`.
+- `e393b7e` is part of the published ancestry (`550c43b` → `e393b7e` → `aa0a7e6`). It is not an
+  unpushed local commit. It changed only `README.md`, `index.html` and a JS bundle; its theme-button
+  behaviour is also present in source `377e6cd`, so this release supersedes its generated files.
+- The release commit changed 9 files (+638/−364): added `privacy.html`, `contact.html`, `app.html`,
+  `404.html`, `og/querymind-social-preview.png` and `assets/index-CHAEi_d6.js`; modified
+  `index.html` and this README; removed `assets/index-Ci7VMYy9.js`.
+
+### Build provenance
+
+1. The build ran in `query_main` at
+   `377e6cd9c3b2386dcdf9a853c9b743256de7576f` with branch `main`, `origin/main` at the same commit
+   and `git status` empty. `package-lock.json` is unchanged (SHA-256
+   `7ae1734fcbc8d3e79b5d2b91fe1896a3787b5d868e0f63365561dc77566179c0`); no `.env` file exists in
+   the checkout (only the placeholder `.env.example`).
+2. `npm ci` succeeded from the lockfile; `npx tsc --noEmit` was clean; `npm test` reported 481
+   tests / 122 suites / 0 fail; `npm run build` succeeded and pre-rendered all five documents.
+3. The build emitted exactly 17 files: the 15 deployable files in the inventory below plus
+   `duckdb/duckdb-eh.wasm` and `duckdb/duckdb-mvp.wasm`. No source maps and no environment files
+   were emitted.
+4. All 15 deployable files were copied from that `dist/`; each was compared byte-for-byte with the
+   build and re-hashed in place. The two `.wasm` files were not copied. Their source hashes
+   (`3abdec74…` and `ee556014…`) match the R2 inventory recorded below.
+5. The only non-`dist` files in this repository are this README and `.gitattributes`.
+
+### What changed relative to the previous live baseline
+
+The previous live baseline `aa0a7e6` contained only `index.html`. This release adds four documents
+(`privacy.html`, `contact.html`, `app.html`, `404.html`), the social card, canonical/Open Graph/
+Twitter metadata and a top-level 404 that disables the Pages SPA fallback. It also replaces the main
+JS bundle and removes `assets/index-DAlCOhl1.js`; `assets/index-Ci7VMYy9.js`, carried by `e393b7e`,
+is removed as well. The stylesheet, `robots.txt`, `sitemap.xml`, worker scripts, fonts and both R2
+`.wasm` objects are unchanged.
+
+Live `/privacy` and `/contact` responses are 24,651 and 16,577 bytes — 398 and 253 bytes larger than
+the committed 24,253 and 16,324-byte artifacts because Cloudflare injects its email-obfuscation
+script at the edge. The browser pass confirmed the decoded `mailto:` link. This is an edge
+transformation, not an artifact mismatch; the committed sizes and hashes below are authoritative.
+
+## Deployment identity and live verification
+
+Pushing `query_prod` `main` to `origin/main` triggered the existing Git-connected Cloudflare Pages
+project `query-prod` automatically. No manual `wrangler pages deploy`, deployment approval or
+redeploy was performed.
+
+| Evidence | Value |
+|---|---|
+| Cloudflare check run | `Cloudflare Pages`, app `cloudflare-workers-and-pages`, status `completed`, conclusion `success` |
+| Started / completed | 2026-11-25T16:47:21Z (both timestamps) |
+| Deployment ID | `01f6fd35-62e5-4303-a349-309aa8abd0b8` |
+| Project / account | `query-prod` / `564cd063e78f8ab9d3b7b1442f037db7` |
+| Deployment preview | `https://01f6fd35.query-prod.pages.dev` |
+
+Cloudflare preview documents were compared byte-for-byte with the committed artifacts, and the
+production origin was compared with both:
+
+| Document | Preview SHA-256 | Production SHA-256 | Commit artifact SHA-256 |
+|---|---|---|---|
+| `/` | `a943c9f849030725f5406b893d19c86e4d7f2afc2d5b7caf58bfc2d82044bf31` | same | same |
+| `/app` | `bf1f6a309e2ce8603710ba16eb374fbe5a50645c79e513ed1591c3f70b9a289c` | same | same |
+| unknown route (`404.html`) | `4471c7e66b3869f71c3a80318af1cec61a9ee56c6ddba95c1869c1bc04d55e41` | same | same |
+
+The GitHub Deployments API returned `[]` and the GitHub commit-status API returned `pending` with
+zero contexts; the Cloudflare integration reports deployments through its check run rather than
+those APIs.
+
+**Identity caveat:** the Cloudflare dashboard's provider-side commit SHA field, environment and
+branch were not independently inspected because authenticated dashboard access was unavailable. Do
+not treat that field as verified. Identity is established by the Cloudflare-authored check run
+linking deployment `01f6fd35…` to the release commit, plus byte-identical preview and production
+documents.
+
+Live verification was read-only and ran on 2026-11-25 (initial route matrix 16:53 UTC, re-measured
+17:00–17:02 UTC). No deployment, cache purge, Search Console request, DNS, R2, Cloudflare or Git
+change was performed during verification.
 
 ## Route architecture — five documents
 
@@ -39,50 +136,71 @@ contact page, analytics workspace and custom not-found page.
 five documents. The workspace document carries only its head and an empty root; the client mounts
 the workspace in the browser.
 
-| Route | Document | `<title>` | Canonical / `og:url` | Robots | Social card |
-|---|---|---|---|---|---|
-| `/` | `index.html` | QueryMind \| Browser-Based Natural Language to SQL | `https://querymind.in/` | `index,follow` | yes |
-| `/privacy` | `privacy.html` | Privacy Policy — QueryMind | `https://querymind.in/privacy` | `index,follow` | yes |
-| `/contact` | `contact.html` | Contact — QueryMind | `https://querymind.in/contact` | `index,follow` | yes |
-| `/app` | `app.html` | Workspace — QueryMind | none | `noindex,nofollow` | no |
-| unknown | `404.html` | Page Not Found — QueryMind | none | `noindex,nofollow` | no |
+| Route | Document | Live HTTP | Committed bytes | `<title>` | Canonical / `og:url` | Robots | Social card |
+|---|---|---|---|---|---|---|---|
+| `/` | `index.html` | 200 | 32,934 | QueryMind \| Browser-Based Natural Language to SQL | `https://querymind.in/` | `index,follow` | yes |
+| `/privacy` | `privacy.html` | 200 | 24,253 | Privacy Policy — QueryMind | `https://querymind.in/privacy` | `index,follow` | yes |
+| `/contact` | `contact.html` | 200 | 16,324 | Contact — QueryMind | `https://querymind.in/contact` | `index,follow` | yes |
+| `/app` | `app.html` | 200 | 2,160 | Workspace — QueryMind | none | `noindex,nofollow` | no |
+| unknown | `404.html` | 404 | 10,241 | Page Not Found — QueryMind | none | `noindex,nofollow` | no |
 
 `app.html` and `404.html` deliberately carry no homepage canonical, `og:url`, `og:image` or
-`twitter:image`. Every indexable metadata URL is absolute HTTPS on the apex domain.
+`twitter:image`. Every indexable metadata URL is absolute HTTPS on the apex domain. After mount,
+`/app` uses a client-rendered `h2` and has no `h1`; this is recorded as a minor heading/accessibility
+observation, not an indexing failure, because the route is `noindex,nofollow`.
 
-## Cloudflare Pages expectations
+### Cloudflare Pages serving behaviour (measured 2026-11-25)
 
 This repository connects to Cloudflare Pages (output = repository root, no build command). The
-documents rely on Pages' documented serving rules:
+following was measured on the live origin:
 
-- `/`, `/privacy`, `/contact` and `/app` are served from their matching `.html` files.
-- Pages redirects file URLs to their extension-less form: `/privacy.html` → `/privacy`,
-  `/contact.html` → `/contact`, `/app.html` → `/app`. On the live origin on 2026-11-25, both
-  `/index.html` and `/index/` answered `308` to `/`, so trailing-slash forms are expected to
-  converge the same way.
-- A top-level `404.html` disables Pages' automatic SPA fallback. Unknown paths return
-  `404.html` with HTTP 404, and `app.html` must ship with it so `/app` remains a real document.
-- There is no `_redirects`, `_routes.json` or `_headers` file, and none should be added. A
-  catch-all rewrite to `index.html` would serve the landing document for `/privacy` and `/app`.
+- `/`, `/privacy`, `/contact` and `/app` return their matching documents with HTTP 200.
+- `/index.html`, `/privacy.html`, `/contact.html` and `/app.html` return HTTP 308 to `/`, `/privacy`,
+  `/contact` and `/app`. The trailing-slash forms `/privacy/`, `/contact/` and `/app/` return the
+  same 308 redirects.
+- A top-level `404.html` disables Pages' automatic SPA fallback. Unknown paths return `404.html`
+  with HTTP 404 and `Cache-Control: no-store`.
+- No route fell back to the homepage: `/app` returned the 2,160-byte workspace document and the
+  unknown path returned the 10,241-byte not-found document.
+- There is no `_redirects`, `_routes.json` or `_headers` file, and none should be added. A catch-all
+  rewrite to `index.html` would serve the landing document for `/privacy` and `/app`.
 
-None of this has been measured on the deployed origin for these five documents. It is documented
-and simulated locally; the post-deployment checklist below is the live gate.
+## Live SEO verification
 
-## Social preview and discovery files
+Measured from raw HTML (no JavaScript) on 2026-11-25:
+
+- Homepage title `QueryMind | Browser-Based Natural Language to SQL` and description
+  `Ask questions about your data in plain English. QueryMind turns natural language into SQL and runs the analysis locally in your browser with DuckDB-WASM.`
+  matched byte-for-byte.
+- Privacy and Contact returned their unique titles, descriptions, canonicals and `og:url` values.
+- All three indexable routes reference `https://querymind.in/og/querymind-social-preview.png` via
+  `og:image` and `twitter:image`.
+- Landing, privacy, contact and 404 documents contain pre-rendered `<main>` markup; `app.html`
+  contains an empty root for the client mount.
+- Each indexable public page and the 404 page contain exactly one `h1`. `/app` has none.
+- `/app` and the unknown route carry `noindex,nofollow`, no canonical and no social metadata.
+- No stale bundle references or broken local paths were found.
+
+## Social preview, robots and sitemap
 
 - Social card: [`og/querymind-social-preview.png`](og/querymind-social-preview.png), 1200 × 630
-  PNG, 64,834 bytes, referenced as
-  `https://querymind.in/og/querymind-social-preview.png` by all three indexable routes.
-- `robots.txt`: allows crawling, disallows `/app`, declares
+  PNG, 64,834 bytes, SHA-256
+  `9a15f6798382dda1fd3ff9b9003d05880aeb3b7938f98c4a8c7c38b68ec9672c`. Live request returned HTTP
+  200, `image/png`. It is referenced as
+  `https://querymind.in/og/querymind-social-preview.png` by all three indexable routes; `app` and
+  `404` do not reference it.
+- `robots.txt`: HTTP 200, `text/plain`, 270 bytes. Allows crawling, disallows `/app`, and declares
   `Sitemap: https://querymind.in/sitemap.xml`.
-- `sitemap.xml`: exactly `https://querymind.in/`, `https://querymind.in/privacy` and
-  `https://querymind.in/contact`; no `/app`, no `lastmod`.
+- `sitemap.xml`: HTTP 200, `application/xml`, 482 bytes. Contains exactly `https://querymind.in/`,
+  `https://querymind.in/privacy` and `https://querymind.in/contact`; no `/app` entry and no
+  `lastmod`.
 
 ## Why two hosts — DuckDB-WASM on R2
 
 Cloudflare Pages rejects uploads of individual files larger than 25 MiB. Both DuckDB-WASM binaries
 exceed it and are served from the first-party R2 bucket. **This repository does not contain either
-binary, and this preparation did not download, replace, upload, delete or modify any R2 object.**
+binary, and no R2 object was downloaded in full, replaced, uploaded, deleted or modified during the
+release.**
 
 | File | Bytes | Served from | R2 object key |
 |---|---|---|---|
@@ -94,14 +212,23 @@ Bucket `querymind-static`, custom domain `assets.querymind.in`, existing version
 `https://assets.querymind.in/duckdb/${version}` with `version = "1.33.1-dev57.0"` and references
 `duckdb-browser-eh.worker.js` and `duckdb-browser-mvp.worker.js`, which remain in this repository.
 
+Live R2 verification on 2026-11-25:
+
+- Both objects answered ranged GET with HTTP 206 and `Content-Type: application/wasm`; sizes
+  `35,913,747` and `41,325,187` bytes; `Cache-Control: public, max-age=31536000, immutable`.
+- Requests with `Origin: https://querymind.in` received
+  `Access-Control-Allow-Origin: https://querymind.in`; a request with `Origin: https://example.com`
+  received no ACAO header.
+- `query_prod` tracks zero `.wasm` files; both worker scripts returned HTTP 200 from Pages.
+
 R2 requirements remain as configured: `Content-Type: application/wasm`, immutable long cache,
 `GET` CORS for `https://querymind.in` (and the other approved origins), bucket otherwise private.
 
 ## Production artifact inventory
 
-Fifteen deployable Pages files. Sizes and SHA-256 are of the files in this working tree; each was
-compared byte-for-byte with the verified `dist/` output. Status is relative to the live baseline
-`aa0a7e6`.
+Fifteen deployable Pages files. Sizes and SHA-256 are of the committed artifacts; each was compared
+byte-for-byte with the verified `dist/` output and re-checked against the live origin. Status is
+relative to the previous live baseline `aa0a7e6`.
 
 | Path | Bytes | SHA-256 | Status |
 |---|---|---|---|
@@ -121,91 +248,85 @@ compared byte-for-byte with the verified `dist/` output. Status is relative to t
 | `fonts/inter-latin-variable.woff2` | 48,256 | `3100e775e8616cd2611beecfa23a4263d7037586789b43f035236a2e6fbd4c62` | unchanged |
 | `fonts/jetbrains-mono-latin-variable.woff2` | 31,432 | `83c005d49d8a6a50474c73a5a36ac0468076e9c4a29da7bdb14995d80560a5be` | unchanged |
 
-Removed relative to the live baseline: `assets/index-DAlCOhl1.js`. Removed relative to the local
-unpushed commit `e393b7e`: `assets/index-Ci7VMYy9.js`. No other file is removed.
+Live requests for the JS, CSS, workers, fonts, image and social card returned HTTP 200 and matched
+these hashes and sizes. `index.html`, `app.html` and `404.html` were byte-identical on the
+deployment preview and the production origin; `privacy.html` and `contact.html` differ only by
+Cloudflare's email-obfuscation edge transformation described above.
 
-Repository-only, not deployed: `.gitattributes` (disables end-of-line conversion so clones match
-the artifacts byte-for-byte) and this `README.md`.
+Removed relative to the previous live baseline: `assets/index-DAlCOhl1.js`. Removed relative to
+`e393b7e`: `assets/index-Ci7VMYy9.js`. No other file was removed.
 
-## Deployment procedure
+Repository-level, not referenced by any application route: `.gitattributes` (disables end-of-line
+conversion so clones match the artifacts byte-for-byte) and this `README.md`.
 
-1. A separate authorization is required to commit and push this working tree. The push is what
-   triggers Cloudflare Pages; this preparation does not push or deploy.
-2. Upload is the repository root as-is — no Pages build command, no generated files to exclude.
-   Every file is below the 25 MiB per-file limit; the two `.wasm` binaries are not here.
-3. Before deploying, confirm both R2 objects still answer HTTP 200 with `application/wasm` and the
-   pinned sizes; this release changes neither object nor key.
-4. After deployment, run the checklist below against the live origin.
+## Live browser smoke tests
 
-## Post-deployment verification checklist
+Performed against `https://querymind.in` on 2026-11-25 with existing browser automation; no package
+installation, file change, provider key or private dataset was used. The session viewport was
+500 × 772.
 
-None of these has been measured on the deployed origin for this release. The previously recorded
-results in the source repository's verification documents cover earlier releases only.
+- Landing, Privacy, Contact and the 404 page rendered with their expected titles and one `h1`
+  each; `/app` mounted without an `h1`. Fonts loaded and no image failed; no horizontal overflow
+  was observed at the tested viewport.
+- The workspace mounted after skipping the provider dialog and reported the runtime state
+  `In-Memory DuckDB`.
+- A curated query returned 3 rows × 4 columns in 94 ms, 7 integrity checks, `VERIFIED`.
+- A simple custom count returned 25 customers, 1 row, 24 ms, 4 integrity checks.
+- An arbitrary free-text question without a configured key was refused with the provider-key
+  notice and made no provider request. No real API key was entered.
+- Dark theme activation and persistence through reload were verified.
+- No uncaught application exceptions were observed. One curated query produced a dataset-capability
+  clarification and a console warning (not an error).
+- No non-QueryMind third-party host was requested in the observed session. No Cloudflare beacon was
+  observed, but hosting-level configuration was not independently inspected.
+- Synthetic automation clicks on the theme and dialog-skip controls reported success without
+  changing state on the first attempts; DOM-level activation worked and persisted. This is recorded
+  as a test-harness interaction anomaly, not an observed application defect.
 
-1. `/`, `/privacy`, `/contact` each return their own document, with the title, description,
-   canonical, `og:url` and robots directive in the route table above; each has exactly one `h1`.
-2. `/app` returns `app.html` with `Workspace — QueryMind`, `noindex,nofollow`, no canonical and no
-   social metadata; the workspace mounts and DuckDB-WASM loads from R2; a curated keyless query
-   passes integrity checks.
-3. `/privacy.html`, `/contact.html`, `/app.html` and their trailing-slash forms redirect (`308`) to
-   the extension-less routes, matching the measured `/index.html` behaviour.
-4. An unknown path returns `404.html` with HTTP 404, `noindex,nofollow`, no canonical and one `h1`.
-5. `/robots.txt` returns the real file as `text/plain`, disallowing `/app` and declaring
-   `https://querymind.in/sitemap.xml`; `/sitemap.xml` returns the real file as `application/xml`
-   with exactly the three indexable URLs and no `/app` entry.
-6. `/og/querymind-social-preview.png` returns the 64,834-byte PNG with `image/png`; LinkedIn and
-   Google preview caches are external and must be checked separately.
-7. Both public theme buttons toggle and persist across reloads; no monitor/system control remains.
-8. No console errors from the application's own code; application requests are first-party (Pages
-   origin, `assets.querymind.in`, one provider endpoint only when a query runs). The earlier
-   observation of a Cloudflare-injected analytics beacon remains an open hosting-level finding and
-   must be checked in the Cloudflare dashboard, not inferred from repository content.
-9. With no key, a bundled sample query answers locally; an uploaded dataset plus a free-text
-   question is refused with the provider-key notice. A real provider key has not been tested in
-   this preparation.
-10. Search Console: ownership, sitemap submission, Google-selected canonicals and indexing status
-    have not been verified; no account access was used.
+DuckDB-WASM is fetched inside a worker and does not appear in the page-level network log. R2
+serving was verified by direct HTTP requests, and local execution success is the runtime evidence
+that the engine loaded.
 
-## Build provenance
+## Remaining limitations and unverified checks
 
-1. The build ran in `query_main` at
-   `377e6cd9c3b2386dcdf9a853c9b743256de7576f` with branch `main`, `origin/main` at the same commit
-   and `git status` empty. `package-lock.json` is unchanged (SHA-256
-   `7ae1734fcbc8d3e79b5d2b91fe1896a3787b5d868e0f63365561dc77566179c0`); no `.env` file exists in
-   the checkout (only the placeholder `.env.example`).
-2. `npm ci` succeeded from the lockfile; `npx tsc --noEmit` was clean; `npm test` reported 481
-   tests / 122 suites / 0 fail; `npm run build` succeeded and pre-rendered all five documents.
-3. The build emitted exactly 17 files: the 15 deployable files above plus
-   `duckdb/duckdb-eh.wasm` and `duckdb/duckdb-mvp.wasm`. No source maps and no environment files
-   were emitted.
-4. All 15 deployable files were copied from that `dist/`; each was compared byte-for-byte with the
-   build and re-hashed in place. The two `.wasm` files were not copied. Their source hashes
-   (`3abdec74…` and `ee556014…`) match the R2 inventory recorded above.
-5. The only non-`dist` files here are this README and `.gitattributes`.
+The following are not verified and must not be treated as completed:
 
-## Repository reconciliation
+1. The Cloudflare dashboard's own deployment commit SHA field, environment and branch were not
+   independently inspected.
+2. Search Console ownership, sitemap submission, Google-selected canonicals and indexing status
+   remain unverified; no Search Console access was used.
+3. Google and LinkedIn social-preview caches were not tested and remain external.
+4. A real provider-key query was not executed; only the keyless guard and local demo paths were
+   tested.
+5. Cloudflare edge analytics-beacon configuration remains not fully verified.
+6. `www.querymind.in` DNS was not tested or changed.
+7. Desktop-width visual layout was not measured; browser automation used a 500 × 772 viewport.
+8. `/app` has a client-mounted `h2` without an `h1`.
+9. HSTS, CSP and Permissions-Policy were not observed in the inspected responses. This is a
+   hosting observation, not proof of a broken release; no Cloudflare or security configuration was
+   changed.
 
-The local branch also contains `e393b7e` — "Rotate production assets for the light/dark theme
-buttons", built from source `8d06139`. It changed only `README.md`, `index.html` and the JS bundle,
-and it has not been pushed. The theme behaviour it introduced is already part of source `377e6cd`,
-so this candidate supersedes its two generated files and removes `assets/index-Ci7VMYy9.js`.
-`e393b7e` was not reset, amended, cherry-picked, merged, pushed or deleted during preparation.
-Because the branch HEAD remains at that commit, any future push prepared without a separately
-authorized history decision would publish it alongside the new release commit; this README makes
-no claim that it is part of the live baseline.
+Other hosting observations from the live responses: `x-content-type-options: nosniff`,
+`referrer-policy: strict-origin-when-cross-origin`, `Access-Control-Allow-Origin: *` on HTML,
+NEL/`Report-To` headers and `Server: cloudflare`. HTML is served with
+`Cache-Control: public, max-age=0, must-revalidate`; the 404 is `no-store`; hashed assets are
+`max-age=14400, must-revalidate`; R2 WASM is one-year immutable.
 
-## Maintenance rules
+## Maintenance and future release procedure
 
 - Never edit the generated JS/CSS or rename files — every artifact is content-addressed and
   verified by checksum above.
-- To update: build from a verified commit in `query_main`, copy every deployable `dist/` file here,
-  remove superseded hashed files, regenerate this README and re-hash, then deploy. If the
-  DuckDB-WASM package version changes, update `DUCKDB_WASM_VERSION` in
+- To release: build from a verified commit in `query_main`, copy every deployable `dist/` file here,
+  remove superseded hashed files, regenerate this README and re-hash, then commit and push. The push
+  to `query_prod` `main` is what triggers the Git-connected Cloudflare Pages deployment; no manual
+  `wrangler pages deploy` is used.
+- After each deployment, verify the live origin against the committed hashes and record only
+  measured results in this README. Distinguish the Cloudflare integration check and content
+  verification from the provider-side dashboard fields.
+- If the DuckDB-WASM package version changes, update `DUCKDB_WASM_VERSION` in
   `src/services/sqlEngine.ts` and upload the new binaries under the new versioned R2 key.
 - Keep `404.html` and `app.html` together: with a top-level `404.html`, Pages no longer falls back
   to `index.html` for `/app`.
-- Release status must be explicit: a working tree that has not been pushed is a prepared
-  candidate, not a deployment. Update the status table only with results measured on the live
-  origin.
-- This repository must never contain source code, tests, `node_modules`, `.env` files, keys or
-  logs.
+- Release status must be explicit: a working tree that has not been pushed is a prepared candidate,
+  not a deployment. Update the status table only with results measured on the live origin.
+- This repository must never contain source code, tests, `node_modules`, `.env` files, keys or logs.
