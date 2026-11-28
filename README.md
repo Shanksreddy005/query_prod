@@ -58,7 +58,8 @@ environment and branch) was not independently inspected; see
   unpushed local commit. It changed only `README.md`, `index.html` and a JS bundle; its theme-button
   behaviour is also present in source `377e6cd`, so this release supersedes its generated files.
 - The release commit changed 9 files (+638/−364): added `privacy.html`, `contact.html`, `app.html`,
-  `404.html`, `og/querymind-social-preview.png` and `assets/index-CHAEi_d6.js`; modified
+  `404.html`, `og/querymind-social-preview.png` and the JavaScript bundle then current (since
+  superseded by `assets/index-BbFiEFSP.js` in the local SEO Release 1 artifact transfer); modified
   `index.html` and this README; removed `assets/index-Ci7VMYy9.js`.
 
 ### Build provenance
@@ -296,7 +297,7 @@ relative to the previous live baseline `aa0a7e6`.
 | `robots.txt` | 270 | `1d3b2168d85434b1abff9032935358b47c6664a7a2c13d84bb0860a6ce9b9b75` | unchanged |
 | `sitemap.xml` | 482 | `c5ab36bad48e5b5f6933ccb3b20713fc58b7395cd5bb646ba7edeae88d69a046` | unchanged |
 | `og/querymind-social-preview.png` | 64,834 | `9a15f6798382dda1fd3ff9b9003d05880aeb3b7938f98c4a8c7c38b68ec9672c` | new |
-| `assets/index-CHAEi_d6.js` | 832,068 | `ea68a6bb2516525e50db647b692c38e775e501c54c9fb8ebc6c6da6506468c02` | new (replaces `assets/index-DAlCOhl1.js`) |
+| `assets/index-BbFiEFSP.js` | 832,852 | `b41c40daa790c993b7095f99e4ef0313f6178fe8f9e1b5901a817913b4705aa7` | new (local SEO Release 1 artifact transfer; supersedes the v1.2 bundle; not deployed) |
 | `assets/index-BoCwoH1v.css` | 58,279 | `ed26d8c6c2ca757cd38fa6446867e7a6c87781c6ff3e3abd3c2a8c4d35a705df` | unchanged |
 | `assets/aistudio/image_ff69bad7.png` | 88,620 | `ff69bad7d2d91321292459a2b54392093e123d0575276a5ee8d7f69bc0cac6dc` | unchanged |
 | `duckdb/duckdb-browser-eh.worker.js` | 773,223 | `fa889e6068c40426dea67c08cf16ce0cad7404eae94f6a2522adcabb5898eb93` | unchanged |
