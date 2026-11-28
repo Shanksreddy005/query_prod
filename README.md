@@ -4,33 +4,34 @@ Production build of **QueryMind v1.2** — browser-native natural-language analy
 backend) — with a pre-rendered document for every public route: landing page, privacy policy,
 contact page, analytics workspace and custom not-found page.
 
-**Release status: Committed, pushed, automatically deployed to Cloudflare Pages, and live-verified
-on 2026-11-25.**
+**Release status: prepared locally for review on 2026-11-28. This worktree holds an uncommitted
+artifact transfer built from source commit `4ab9c8e`; it has not been committed, pushed or
+deployed, and the live origin has not been re-measured for this preparation.**
 
-The Cloudflare Pages integration check completed successfully, and the live documents were compared
-with the committed artifact hashes. The provider-side Cloudflare dashboard record (commit SHA field,
-environment and branch) was not independently inspected; see
-[Deployment identity](#deployment-identity-and-live-verification).
+Cloudflare Pages deploys this repository automatically on any push to `main`, so the artifacts below
+describe a prepared candidate, not a live state. The 2026-11-25 deployment and live measurements
+later in this document are historical records of an earlier release; they do not describe these
+files. See [Deployment identity](#deployment-identity-and-live-verification).
 
 | Field | Value |
 |---|---|
 | Application | QueryMind |
-| Release version | v1.2 + SEO route documents |
+| Release version | v1.2 + SEO route documents + privacy hardening (prepared) |
 | Source repository | https://github.com/Shanksreddy005/query_main |
-| Source commit | `377e6cd9c3b2386dcdf9a853c9b743256de7576f` — "Give every public route its own document and metadata" |
+| Source commit | `4ab9c8e9e3f63b249349fa1029e6971d6421a509` — "Harden AI metadata disclosure and column preflight" |
 | Source branch / remote | `main`, `origin/main` at the same commit; clean working tree |
 | Production repository | https://github.com/Shanksreddy005/query_prod |
-| Production release commit | `550c43b7ad21779e7ed42c948b74f7db308284e9` — "Release QueryMind SEO-ready public pages" |
-| Production parent commit | `e393b7e43db6f39c0399cdf5fe943b94b04e42e9` — "Rotate production assets for the light/dark theme buttons" (retained in published history) |
-| Production branch / remote | `main`, `origin/main` at the same commit; clean after the release commit |
-| Build date | 2026-11-25 |
-| Build command | `npm ci && npx tsc --noEmit && npm test && npm run build` |
-| Type check | `npx tsc --noEmit` — clean |
-| Test status at build time | 481 tests / 122 suites / 481 pass / 0 fail |
-| Deployment | Cloudflare Pages project `query-prod`, deployment `01f6fd35-62e5-4303-a349-309aa8abd0b8` |
-| Deployment check | `Cloudflare Pages` check run, completed successfully 2026-11-25T16:47:21Z |
-| Live verification | Read-only verification of `https://querymind.in`, 2026-11-25 |
-| Previous live baseline | `aa0a7e6` (built from source `2b3f4fb`), replaced by this release |
+| Production release commit | Not created — this transfer is uncommitted |
+| Production parent commit | `953eb3d473ff3f8b44f22977f3991adb1c9cb756` — "Deploy SEO Release 1 production artifacts" |
+| Production branch / remote | `main`, `origin/main` at the parent commit; prepared files uncommitted |
+| Build date | 2026-11-28 |
+| Build command | `npm ci && npm test && npm run lint && npm run build` |
+| Type check | `npm run lint` (`tsc --noEmit`) — clean |
+| Test status at build time | 519 tests / 129 suites / 519 pass / 0 fail |
+| Deployment | None — no commit, push or Cloudflare deployment was made |
+| Deployment check | Not applicable |
+| Live verification | Not performed for this preparation |
+| Previous production release commit | `953eb3d473ff3f8b44f22977f3991adb1c9cb756` |
 
 > **The version label identifies a release, not a built-in marker.** The application ships no in-app
 > version string (`package.json` stays at `0.0.0` by design), so the only authoritative identity of
@@ -41,59 +42,63 @@ environment and branch) was not independently inspected; see
 ### Source
 
 - Repository `query_main`, branch `main`, HEAD and `origin/main` at
-  `377e6cd9c3b2386dcdf9a853c9b743256de7576f`, working tree clean.
-- Commit message: "Give every public route its own document and metadata". The release sits on top
-  of `8d06139` (theme buttons), `2b3f4fb` (source of the previous live release), `2cc8305`,
-  `a49532a` and `31bf2cc`.
-- The build ran at that exact commit: 481 tests / 122 suites / 0 failures, clean TypeScript check
-  and a successful production build that pre-rendered all five documents.
+  `4ab9c8e9e3f63b249349fa1029e6971d6421a509`, working tree clean.
+- Commit message: "Harden AI metadata disclosure and column preflight". Its parent is
+  `75fe0bb30bbdadf8c68c07ce5200dc9ef9bfaddf` ("Implement SEO Release 1").
+- The commit changes 11 files (+803/−45): the numeric range threshold and outward rounding in
+  `src/services/schemaProfiler.ts`; the bounded local column preflight and provider-side scope
+  allowances in `src/services/aiService.ts`; the privacy, landing, API-key and telemetry disclosure
+  copy; `docs/ARCHITECTURE.md`; and the associated regression tests.
 
 ### Production
 
 - Repository `query_prod`, branch `main`, HEAD and `origin/main` at
-  `550c43b7ad21779e7ed42c948b74f7db308284e9`, working tree clean after the release commit.
-- Commit message: "Release QueryMind SEO-ready public pages". Its parent is
-  `e393b7e43db6f39c0399cdf5fe943b94b04e42e9`.
-- `e393b7e` is part of the published ancestry (`550c43b` → `e393b7e` → `aa0a7e6`). It is not an
-  unpushed local commit. It changed only `README.md`, `index.html` and a JS bundle; its theme-button
-  behaviour is also present in source `377e6cd`, so this release supersedes its generated files.
-- The release commit changed 9 files (+638/−364): added `privacy.html`, `contact.html`, `app.html`,
-  `404.html`, `og/querymind-social-preview.png` and the JavaScript bundle then current (since
-  superseded by `assets/index-BbFiEFSP.js` in the local SEO Release 1 artifact transfer); modified
-  `index.html` and this README; removed `assets/index-Ci7VMYy9.js`.
+  `953eb3d473ff3f8b44f22977f3991adb1c9cb756` before this preparation.
+- This preparation modifies five documents (`index.html`, `privacy.html`, `contact.html`,
+  `app.html`, `404.html`), adds `assets/index-D2cQV5H0.js`, removes
+  `assets/index-BbFiEFSP.js`, and regenerates this README. It is not committed and no release
+  commit exists for it.
 
 ### Build provenance
 
 1. The build ran in `query_main` at
-   `377e6cd9c3b2386dcdf9a853c9b743256de7576f` with branch `main`, `origin/main` at the same commit
-   and `git status` empty. `package-lock.json` is unchanged (SHA-256
-   `7ae1734fcbc8d3e79b5d2b91fe1896a3787b5d868e0f63365561dc77566179c0`); no `.env` file exists in
-   the checkout (only the placeholder `.env.example`).
-2. `npm ci` succeeded from the lockfile; `npx tsc --noEmit` was clean; `npm test` reported 481
-   tests / 122 suites / 0 fail; `npm run build` succeeded and pre-rendered all five documents.
-3. The build emitted exactly 17 files: the 15 deployable files of that release plus
+   `4ab9c8e9e3f63b249349fa1029e6971d6421a509` with branch `main`, `origin/main` at the same commit
+   and `git status` empty. `npm ci` reinstalled 208 packages from the lockfile; `npm audit`
+   reported one moderate advisory and no dependency was changed. No `.env` file exists in the
+   checkout.
+2. `npm test` reported 519 tests / 129 suites / 0 fail; `npm run lint` (`tsc --noEmit`) was clean;
+   `npm run build` succeeded and pre-rendered all five documents. The only build warning is Vite's
+   chunk-size advisory for the 837.85 kB (228.30 kB gzip) main bundle.
+3. The build emitted exactly 18 files: the 16 deployable files listed in the inventory below plus
    `duckdb/duckdb-eh.wasm` and `duckdb/duckdb-mvp.wasm`. No source maps and no environment files
    were emitted.
-4. All 15 deployable files were copied from that `dist/`; each was compared byte-for-byte with the
+4. All 16 deployable files were copied from that `dist/`; each was compared byte-for-byte with the
    build and re-hashed in place. The two `.wasm` files were not copied. Their source hashes
    (`3abdec74…` and `ee556014…`) match the R2 inventory recorded below.
 5. The only non-`dist` files in this repository are this README and `.gitattributes`.
 
-### What changed relative to the previous live baseline
+### What changed relative to the previous production artifacts
 
-The previous live baseline `aa0a7e6` contained only `index.html`. This release adds four documents
-(`privacy.html`, `contact.html`, `app.html`, `404.html`), the social card, canonical/Open Graph/
-Twitter metadata and a top-level 404 that disables the Pages SPA fallback. It also replaces the main
-JS bundle and removes `assets/index-DAlCOhl1.js`; `assets/index-Ci7VMYy9.js`, carried by `e393b7e`,
-is removed as well. The stylesheet, `robots.txt`, `sitemap.xml`, worker scripts, fonts and both R2
-`.wasm` objects are unchanged.
+The previous production repository state (`953eb3d`) carried the SEO Release 1 documents and
+`assets/index-BbFiEFSP.js`. This preparation replaces the main JS bundle with
+`assets/index-D2cQV5H0.js` and updates all five HTML documents to reference it. The privacy policy
+and landing FAQ now state the 25-row range-disclosure threshold, outward two-significant-figure
+widening and the minimisation caveat instead of an absolute; the privacy policy additionally
+records that an identifier-shaped column the table does not store is refused in the browser before
+any provider request. The stylesheet, `_headers`, `robots.txt`, `sitemap.xml`, worker scripts,
+fonts, the AI Studio image and the social card are byte-identical to the previous production
+artifacts.
 
-Live `/privacy` and `/contact` responses are 24,651 and 16,577 bytes — 398 and 253 bytes larger than
-the committed 24,253 and 16,324-byte artifacts because Cloudflare injects its email-obfuscation
-script at the edge. The browser pass confirmed the decoded `mailto:` link. This is an edge
-transformation, not an artifact mismatch; the committed sizes and hashes below are authoritative.
+The 2026-11-25 live measurement recorded `/privacy` and `/contact` responses 398 and 253 bytes
+larger than the then-committed artifacts because Cloudflare injects its email-obfuscation script at
+the edge. That is an edge transformation, not an artifact mismatch; no live measurement was taken
+for this preparation.
 
 ## Deployment identity and live verification
+
+> **Historical record — 2026-11-25 deployment.** The values in this section describe the
+> `550c43b` release and its live measurements. They do not identify, and were not re-run for, the
+> prepared artifacts above.
 
 Pushing `query_prod` `main` to `origin/main` triggered the existing Git-connected Cloudflare Pages
 project `query-prod` automatically. No manual `wrangler pages deploy`, deployment approval or
@@ -137,10 +142,10 @@ change was performed during verification.
 five documents. The workspace document carries only its head and an empty root; the client mounts
 the workspace in the browser.
 
-| Route | Document | Live HTTP | Committed bytes | `<title>` | Canonical / `og:url` | Robots | Social card |
+| Route | Document | Last measured HTTP (2026-11-25) | Prepared bytes | `<title>` | Canonical / `og:url` | Robots | Social card |
 |---|---|---|---|---|---|---|---|
-| `/` | `index.html` | 200 | 32,934 | QueryMind \| Browser-Based Natural Language to SQL | `https://querymind.in/` | `index,follow` | yes |
-| `/privacy` | `privacy.html` | 200 | 24,253 | Privacy Policy — QueryMind | `https://querymind.in/privacy` | `index,follow` | yes |
+| `/` | `index.html` | 200 | 34,259 | QueryMind \| Browser-Based Natural Language to SQL | `https://querymind.in/` | `index,follow` | yes |
+| `/privacy` | `privacy.html` | 200 | 25,102 | Privacy Policy — QueryMind | `https://querymind.in/privacy` | `index,follow` | yes |
 | `/contact` | `contact.html` | 200 | 16,324 | Contact — QueryMind | `https://querymind.in/contact` | `index,follow` | yes |
 | `/app` | `app.html` | 200 | 2,160 | Workspace — QueryMind | none | `noindex,nofollow` | no |
 | unknown | `404.html` | 404 | 10,241 | Page Not Found — QueryMind | none | `noindex,nofollow` | no |
@@ -199,10 +204,10 @@ Deliberately excluded from this phase: `Content-Security-Policy` (enforcing or r
 because the DuckDB worker is created from a blob URL and inherits the document policy, including the
 Emscripten `eval` requirement; existing cache and CORS values are unchanged by this file.
 
-Phase 1 security headers were prepared and locally committed on 2026-11-26. Production deployment
-and live response-header verification remain pending. The live responses therefore remain those
-measured on 2026-11-25 and carried none of these five headers. Record post-deployment values only
-after measuring them on the live origin.
+Phase 1 security headers were prepared and locally committed on 2026-11-26. Live response-header
+verification remains pending. The last live measurement, on 2026-11-25, predates the file and
+carried none of these five headers. Record post-deployment values only after measuring them on the
+live origin.
 
 After deployment, verify with:
 
@@ -222,6 +227,10 @@ redirect responses, so record the measured behaviour rather than assuming it.
 
 ## Live SEO verification
 
+> **Historical record — measured on 2026-11-25** against the then-deployed release. The prepared
+> documents carry the same route architecture and metadata contract, but they were not re-measured
+> on the live origin.
+
 Measured from raw HTML (no JavaScript) on 2026-11-25:
 
 - Homepage title `QueryMind | Browser-Based Natural Language to SQL` and description
@@ -240,15 +249,16 @@ Measured from raw HTML (no JavaScript) on 2026-11-25:
 
 - Social card: [`og/querymind-social-preview.png`](og/querymind-social-preview.png), 1200 × 630
   PNG, 64,834 bytes, SHA-256
-  `9a15f6798382dda1fd3ff9b9003d05880aeb3b7938f98c4a8c7c38b68ec9672c`. Live request returned HTTP
-  200, `image/png`. It is referenced as
-  `https://querymind.in/og/querymind-social-preview.png` by all three indexable routes; `app` and
-  `404` do not reference it.
-- `robots.txt`: HTTP 200, `text/plain`, 270 bytes. Allows crawling, disallows `/app`, and declares
+  `9a15f6798382dda1fd3ff9b9003d05880aeb3b7938f98c4a8c7c38b68ec9672c`, unchanged in this
+  preparation. It is referenced as `https://querymind.in/og/querymind-social-preview.png` by all
+  three indexable routes; `app` and `404` do not reference it.
+- `robots.txt`: `text/plain`, 270 bytes. Allows crawling, disallows `/app`, and declares
   `Sitemap: https://querymind.in/sitemap.xml`.
-- `sitemap.xml`: HTTP 200, `application/xml`, 482 bytes. Contains exactly `https://querymind.in/`,
-  `https://querymind.in/privacy` and `https://querymind.in/contact`; no `/app` entry and no
-  `lastmod`.
+- `sitemap.xml`: `application/xml`, 388 bytes, SHA-256
+  `f16c3ae0dd23ebd3e91442068319628e7c41a17b84fbfa35cb3e0eb52885d34b`, unchanged in this
+  preparation. Contains exactly `https://querymind.in/`, `https://querymind.in/privacy` and
+  `https://querymind.in/contact`; no `/app` entry. It carries `lastmod` values (`/` 2026-11-28,
+  `/privacy` and `/contact` 2026-11-25).
 
 ## Why two hosts — DuckDB-WASM on R2
 
@@ -281,38 +291,36 @@ R2 requirements remain as configured: `Content-Type: application/wasm`, immutabl
 
 ## Production artifact inventory
 
-Sixteen deployable Pages files: the fifteen artifacts of the 2026-11-25 release, unchanged, plus
-`_headers`, added by the Phase 1 preparation on 2026-11-26. The fifteen release artifacts were
-compared byte-for-byte with the verified `dist/` output and re-checked against the live origin;
-`_headers` is verified against the build output and has no live origin measurement yet. Status is
-relative to the previous live baseline `aa0a7e6`.
+Sixteen deployable Pages files, compared byte-for-byte with the `dist/` output built from source
+`4ab9c8e` on 2026-11-28. Status is relative to the previous production commit `953eb3d`; no live
+origin measurement exists for this preparation. The two `.wasm` binaries are excluded and remain on
+R2.
 
 | Path | Bytes | SHA-256 | Status |
 |---|---|---|---|
-| `index.html` | 32,934 | `a943c9f849030725f5406b893d19c86e4d7f2afc2d5b7caf58bfc2d82044bf31` | modified |
-| `privacy.html` | 24,253 | `a049c5b1c7d605a821c201c367638b86c2a7f3472fada21269a346c4da0f2bfb` | new |
-| `contact.html` | 16,324 | `93b50c2426ce8577c9ec2652e221f456ec58ac3181647f62db44b8f3e6919cda` | new |
-| `app.html` | 2,160 | `bf1f6a309e2ce8603710ba16eb374fbe5a50645c79e513ed1591c3f70b9a289c` | new |
-| `404.html` | 10,241 | `4471c7e66b3869f71c3a80318af1cec61a9ee56c6ddba95c1869c1bc04d55e41` | new |
+| `index.html` | 34,259 | `ae16d04760a63d7b0c06b8f95f0ea9df4ac7de77b409a306c15fe279e03cae9a` | modified |
+| `privacy.html` | 25,102 | `9f7d3d07bc5a99f35abcf5b2793d29c38f2369912f46fe35fe0773b5de8efe0d` | modified |
+| `contact.html` | 16,324 | `35ed51080abcf076cd36c3dc51fa55713fcec386a5f8f617aafa048b536e6ce6` | modified |
+| `app.html` | 2,160 | `9565c12dec41b1c5f8c921dd0721c3f382f5e5f53855a8b4ba3fbe1170c17ac9` | modified |
+| `404.html` | 10,241 | `3b7ab8d5ee61e94d23fc3e8e646ca39b3a4f9a28b6a8eea5a238157173691fac` | modified |
 | `robots.txt` | 270 | `1d3b2168d85434b1abff9032935358b47c6664a7a2c13d84bb0860a6ce9b9b75` | unchanged |
-| `sitemap.xml` | 482 | `c5ab36bad48e5b5f6933ccb3b20713fc58b7395cd5bb646ba7edeae88d69a046` | unchanged |
-| `og/querymind-social-preview.png` | 64,834 | `9a15f6798382dda1fd3ff9b9003d05880aeb3b7938f98c4a8c7c38b68ec9672c` | new |
-| `assets/index-BbFiEFSP.js` | 832,852 | `b41c40daa790c993b7095f99e4ef0313f6178fe8f9e1b5901a817913b4705aa7` | new (local SEO Release 1 artifact transfer; supersedes the v1.2 bundle; not deployed) |
+| `sitemap.xml` | 388 | `f16c3ae0dd23ebd3e91442068319628e7c41a17b84fbfa35cb3e0eb52885d34b` | unchanged |
+| `og/querymind-social-preview.png` | 64,834 | `9a15f6798382dda1fd3ff9b9003d05880aeb3b7938f98c4a8c7c38b68ec9672c` | unchanged |
+| `assets/index-D2cQV5H0.js` | 837,859 | `1b019445e6f49be8dd613f1290c79d5ca2abd7e2ef2775d4d6d085cfdaf3130e` | new |
 | `assets/index-BoCwoH1v.css` | 58,279 | `ed26d8c6c2ca757cd38fa6446867e7a6c87781c6ff3e3abd3c2a8c4d35a705df` | unchanged |
 | `assets/aistudio/image_ff69bad7.png` | 88,620 | `ff69bad7d2d91321292459a2b54392093e123d0575276a5ee8d7f69bc0cac6dc` | unchanged |
 | `duckdb/duckdb-browser-eh.worker.js` | 773,223 | `fa889e6068c40426dea67c08cf16ce0cad7404eae94f6a2522adcabb5898eb93` | unchanged |
 | `duckdb/duckdb-browser-mvp.worker.js` | 839,642 | `964f678d3bfa5a23deb154e0a7950634a4d1415e571040ab2d47815dc3f13582` | unchanged |
 | `fonts/inter-latin-variable.woff2` | 48,256 | `3100e775e8616cd2611beecfa23a4263d7037586789b43f035236a2e6fbd4c62` | unchanged |
 | `fonts/jetbrains-mono-latin-variable.woff2` | 31,432 | `83c005d49d8a6a50474c73a5a36ac0468076e9c4a29da7bdb14995d80560a5be` | unchanged |
-| `_headers` | 361 | `4d0c3210169d3e1d8c1b612e4aa581fe315f9ca79be68b7ab8a4e1e6bc7d3f1c` | new (Phase 1, not deployed) |
+| `_headers` | 361 | `4d0c3210169d3e1d8c1b612e4aa581fe315f9ca79be68b7ab8a4e1e6bc7d3f1c` | unchanged |
 
-Live requests for the JS, CSS, workers, fonts, image and social card returned HTTP 200 and matched
-these hashes and sizes. `index.html`, `app.html` and `404.html` were byte-identical on the
-deployment preview and the production origin; `privacy.html` and `contact.html` differ only by
-Cloudflare's email-obfuscation edge transformation described above.
+The 2026-11-25 live verification matched the then-committed artifacts and is recorded above as
+history. No live request was made for this preparation, so none of these hashes has been compared
+with `https://querymind.in` yet.
 
-Removed relative to the previous live baseline: `assets/index-DAlCOhl1.js`. Removed relative to
-`e393b7e`: `assets/index-Ci7VMYy9.js`. No other file was removed.
+Removed in this preparation: `assets/index-BbFiEFSP.js`. No other file was removed. No file was
+added except `assets/index-D2cQV5H0.js`.
 
 Repository-level, not referenced by any application route: `.gitattributes` (disables end-of-line
 conversion so clones match the artifacts byte-for-byte) and this `README.md`.
@@ -363,10 +371,11 @@ The following are not verified and must not be treated as completed:
 9. HSTS, CSP and Permissions-Policy were not observed in the inspected responses. This is a
    hosting observation, not proof of a broken release; no Cloudflare or security configuration was
    changed.
-10. The Phase 1 `_headers` file is prepared but not deployed, so its live effect is unmeasured:
-    whether Pages applies it to 404 responses, whether the 308 redirects carry the headers, and the
-    final header values on the origin all remain to be recorded. CSP is deliberately absent (Phase
-    2).
+10. The Phase 1 `_headers` file was not confirmed on the live origin: whether Pages applies it to
+    404 responses, whether the 308 redirects carry the headers, and the final header values on the
+    origin all remain to be measured. CSP is deliberately absent (Phase 2).
+11. The artifacts prepared in this transfer are uncommitted and undeployed; every live measurement
+    in this README predates them.
 
 Other hosting observations from the live responses: `x-content-type-options: nosniff`,
 `referrer-policy: strict-origin-when-cross-origin`, `Access-Control-Allow-Origin: *` on HTML,
